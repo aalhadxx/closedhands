@@ -314,6 +314,16 @@ pub(super) const BUILTIN_COMMANDS: &[BuiltinCommand] = &[
             prompt: args.trim().to_string(),
         },
     },
+    BuiltinCommand {
+        name: "debate",
+        description: "Spawn Harper, Benjamin, Lucas in parallel debate on a brief, then synthesize a leader answer",
+        argument_hint: Some("<brief>"),
+        aliases: &["d"],
+        gate: BuiltinGate::WorkflowLaunches,
+        resolve: |args| BuiltinAction::ClosedHandsDebate {
+            brief: args.trim().to_string(),
+        },
+    },
 ];
 
 /// Split a trailing `--budget <tokens>` flag off a `/goal` objective.
@@ -887,6 +897,9 @@ pub(super) enum BuiltinAction {
     ClosedHandsPipeline {
         prompt: String,
     },
+    ClosedHandsDebate {
+        brief: String,
+    },
 }
 
 impl BuiltinAction {
@@ -923,6 +936,7 @@ impl BuiltinAction {
             BuiltinAction::WorkflowManage { .. } => "workflow",
             BuiltinAction::WorkflowLaunch { .. } => "workflow",
             BuiltinAction::ClosedHandsPipeline { .. } => "closedhands",
+            BuiltinAction::ClosedHandsDebate { .. } => "debate",
         }
     }
 
@@ -959,6 +973,7 @@ impl BuiltinAction {
             BuiltinAction::WorkflowManage { .. } => true,
             BuiltinAction::WorkflowLaunch { input, .. } => !input.is_empty(),
             BuiltinAction::ClosedHandsPipeline { prompt } => !prompt.is_empty(),
+            BuiltinAction::ClosedHandsDebate { brief } => !brief.is_empty(),
         }
     }
 }

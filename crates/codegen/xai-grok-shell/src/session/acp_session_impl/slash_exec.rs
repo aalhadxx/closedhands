@@ -983,6 +983,43 @@ impl SessionActor {
                     }
                 }
             }
+            BuiltinAction::ClosedHandsDebate { brief } => {
+                if brief.is_empty() {
+                    self.send_host_turn_slash_command_output(
+                        "Usage: /debate <brief>\nSpawn Harper, Benjamin, Lucas in parallel debate.",
+                    )
+                    .await;
+                    return ok_end_turn(0, None);
+                }
+
+                let backend = self.create_closedhands_backend();
+                let config = super::debate::DebateConfig {
+                    brief: brief.clone(),
+                    ..Default::default()
+                };
+                let pipeline = super::debate::DebatePipeline::new(
+                    &backend, config,
+                );
+
+                self.send_host_turn_slash_command_output(
+                    "Spawning debate: Harper → Benjamin → Lucas (parallel). Stand by...",
+                )
+                .await;
+
+                match pipeline.execute().await {
+                    Ok(result) => {
+                        self.send_host_turn_slash_command_output(&result).await;
+                        ok_end_turn(0, None)
+                    }
+                    Err(e) => {
+                        self.send_host_turn_slash_command_output(&format!(
+                            "Debate pipeline failed: {e}"
+                        ))
+                        .await;
+                        ok_end_turn(0, None)
+                    }
+                }
+            }
         }
     }
 

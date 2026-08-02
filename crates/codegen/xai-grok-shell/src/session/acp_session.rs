@@ -114,6 +114,8 @@ mod mcp;
 mod model_switch;
 #[path = "acp_session_impl/prompt_queue.rs"]
 mod prompt_queue;
+#[path = "acp_session_impl/debate.rs"]
+pub(crate) mod debate;
 #[path = "acp_session_impl/slash_exec.rs"]
 mod slash_exec;
 use super::PromptOrigin;
