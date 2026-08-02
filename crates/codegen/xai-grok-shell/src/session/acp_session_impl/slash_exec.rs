@@ -960,7 +960,256 @@ impl SessionActor {
                     .await;
                 ok_end_turn(0, None)
             }
+            BuiltinAction::ClosedHandsPipeline { prompt } => {
+                if prompt.is_empty() {
+                    self.send_host_turn_slash_command_output(
+                        "Usage: /closedhands <product prompt>\nRun the ClosedHands MOE pipeline.",
+                    )
+                    .await;
+                    return ok_end_turn(0, None);
+                }
+                match self.run_closedhands_pipeline(&prompt).await {
+                    Ok(result) => {
+                        self.send_host_turn_slash_command_output(&result).await;
+                        ok_end_turn(0, None)
+                    }
+                    Err(e) => {
+                        self.send_host_turn_slash_command_output(&format!(
+                            "ClosedHands pipeline failed: {e}"
+                        ))
+                        .await;
+                        ok_end_turn(0, None)
+                    }
+                }
+            }
         }
+    }
+
+    /// Spawn a single ClosedHands persona subagent.
+    async fn spawn_closedhands_persona(
+        &self,
+        backend: &xai_grok_tools::implementations::grok_build::task::backend::ChannelBackend,
+        persona: &str,
+        description: &str,
+        prompt_text: String,
+    ) -> Result<String, String> {
+        let id = format!("closedhands-{}-{}", persona, uuid::Uuid::new_v4());
+        let request = xai_grok_tools::implementations::grok_build::task::types::SubagentRequest {
+            id,
+            prompt: prompt_text,
+            description: description.to_string(),
+            subagent_type: "general-purpose".to_string(),
+            parent_session_id: self.session_info.id.to_string(),
+            parent_prompt_id: None,
+            resume_from: None,
+            cwd: None,
+            runtime_overrides: xai_grok_tools::implementations::grok_build::task::types::SubagentRuntimeOverrides {
+                persona: Some(persona.to_string()),
+                ..Default::default()
+            },
+            run_in_background: false,
+            surface_completion: true,
+            await_to_completion: true,
+            fork_context: false,
+            owner: xai_grok_tools::implementations::grok_build::task::types::SubagentOwner::Task,
+            cancel_token: tokio_util::sync::CancellationToken::new(),
+        };
+
+        let result = backend.spawn(request).await.map_err(|e| e.to_string())?;
+        if !result.success {
+            return Err(format!(
+                "{} failed: {}",
+                persona,
+                result.error.unwrap_or_default()
+            ));
+        }
+        Ok(result.output.to_string())
+    }
+
+    /// Run the ClosedHands MOE pipeline: Harper -> Benjamin -> Lucas -> Coder -> Reviewer -> Fixer -> Tester -> Deployer.
+    async fn run_closedhands_pipeline(&self,
+        user_prompt: &str,
+    ) -> Result<String, String> {
+        let artifacts_dir = std::path::PathBuf::from(&self.session_info.cwd)
+            .join(".closedhands")
+            .join("artifacts");
+        if let Err(e) = std::fs::create_dir_all(&artifacts_dir) {
+            return Err(format!("Failed to create artifacts directory: {e}"));
+        }
+
+        let backend = match self.tool_context.subagent_event_tx.clone() {
+            Some(tx) => xai_grok_tools::implementations::grok_build::task::backend::ChannelBackend::for_session(
+                tx,
+                self.session_info.id.to_string(),
+            ),
+            None => return Err("Subagent support not enabled".to_string()),
+        };
+
+        // 1. HARPER
+        self.send_host_turn_slash_command_output(
+            "**ClosedHands** — Running Harper (research)..."
+        )
+        .await;
+        let evidence = self
+            .spawn_closedhands_persona(
+                &backend,
+                "harper",
+                "Harper: evidence gathering",
+                format!(
+                    "[TASK]\n{}\n\nGather evidence and sources. Cite URLs, dates, authors.",
+                    user_prompt
+                ),
+            )
+            .await?;
+        if let Err(e) = std::fs::write(artifacts_dir.join("01_evidence.md"), &evidence) {
+            return Err(format!("Failed to write artifact: {e}"));
+        }
+
+        // 2. BENJAMIN
+        self.send_host_turn_slash_command_output(
+            "**ClosedHands** — Running Benjamin (logic check)..."
+        )
+        .await;
+        let logic = self
+            .spawn_closedhands_persona(
+                &backend,
+                "benjamin",
+                "Benjamin: logic check",
+                format!(
+                    "[EVIDENCE]\n{}\n\nFind logic errors, inconsistencies, weak arguments.",
+                    evidence
+                ),
+            )
+            .await?;
+        if let Err(e) = std::fs::write(artifacts_dir.join("02_logic.md"), &logic) {
+            return Err(format!("Failed to write artifact: {e}"));
+        }
+
+        // 3. LUCAS
+        self.send_host_turn_slash_command_output(
+            "**ClosedHands** — Running Lucas (contrarian)..."
+        )
+        .await;
+        let challenge = self
+            .spawn_closedhands_persona(
+                &backend,
+                "lucas",
+                "Lucas: contrarian challenge",
+                format!(
+                    "[FINDINGS]\n{}\n\nChallenge these. Propose 3 alternative angles. What's missing?",
+                    logic
+                ),
+            )
+            .await?;
+        if let Err(e) = std::fs::write(artifacts_dir.join("03_challenge.md"), &challenge) {
+            return Err(format!("Failed to write artifact: {e}"));
+        }
+
+        // 4. SYNTHESIS
+        self.send_host_turn_slash_command_output("**ClosedHands** — Synthesizing...")
+            .await;
+        let synthesis = format!(
+            "## Evidence (Harper)\n{}\n\n## Logic Check (Benjamin)\n{}\n\n## Contrarian Challenge (Lucas)\n{}\n",
+            evidence, logic, challenge
+        );
+        if let Err(e) = std::fs::write(artifacts_dir.join("04_synthesis.md"), &synthesis) {
+            return Err(format!("Failed to write artifact: {e}"));
+        }
+
+        // 5. CODER
+        self.send_host_turn_slash_command_output("**ClosedHands** — Running Coder...")
+            .await;
+        let code = self
+            .spawn_closedhands_persona(
+                &backend,
+                "coder",
+                "Coder: implementation",
+                format!(
+                    "[SYNTHESIS]\n{}\n\nImplement the product. Write clean, working code.",
+                    synthesis
+                ),
+            )
+            .await?;
+        if let Err(e) = std::fs::write(artifacts_dir.join("05_code.md"), &code) {
+            return Err(format!("Failed to write artifact: {e}"));
+        }
+
+        // 6. REVIEWER
+        self.send_host_turn_slash_command_output("**ClosedHands** — Running Reviewer...")
+            .await;
+        let review = self
+            .spawn_closedhands_persona(
+                &backend,
+                "reviewer",
+                "Reviewer: code review",
+                format!(
+                    "[CODE]\n{}\n\nReview code. Tag EVERY issue [EASY][MEDIUM][LOW][HIGH].",
+                    code
+                ),
+            )
+            .await?;
+        if let Err(e) = std::fs::write(artifacts_dir.join("06_review.md"), &review) {
+            return Err(format!("Failed to write artifact: {e}"));
+        }
+
+        // 7. FIXER
+        self.send_host_turn_slash_command_output("**ClosedHands** — Running Fixer...")
+            .await;
+        let fixed = self
+            .spawn_closedhands_persona(
+                &backend,
+                "fixer",
+                "Fixer: apply fixes",
+                format!("[REVIEW]\n{}\n\nFix the issues. Preserve functionality.", review),
+            )
+            .await?;
+        if let Err(e) = std::fs::write(artifacts_dir.join("07_fixed.md"), &fixed) {
+            return Err(format!("Failed to write artifact: {e}"));
+        }
+
+        // 8. TESTER
+        self.send_host_turn_slash_command_output("**ClosedHands** — Running Tester...")
+            .await;
+        let tests = self
+            .spawn_closedhands_persona(
+                &backend,
+                "tester",
+                "Tester: write and run tests",
+                format!(
+                    "[CODE]\n{}\n\nWrite and run tests. Fix any failures.",
+                    fixed
+                ),
+            )
+            .await?;
+        if let Err(e) = std::fs::write(artifacts_dir.join("08_tests.md"), &tests) {
+            return Err(format!("Failed to write artifact: {e}"));
+        }
+
+        // 9. DEPLOYER
+        self.send_host_turn_slash_command_output("**ClosedHands** — Running Deployer...")
+            .await;
+        let deploy = self
+            .spawn_closedhands_persona(
+                &backend,
+                "deployer",
+                "Deployer: deploy to Vercel",
+                format!(
+                    "[CODE]\n{}\n\nDeploy to Vercel. Return the deployed URL.",
+                    fixed
+                ),
+            )
+            .await?;
+        if let Err(e) = std::fs::write(artifacts_dir.join("09_deploy.md"), &deploy) {
+            return Err(format!("Failed to write artifact: {e}"));
+        }
+
+        self.send_host_turn_slash_command_output("**ClosedHands** — Pipeline complete!")
+            .await;
+
+        Ok(format!(
+            "ClosedHands pipeline complete.\n\nArtifacts written to `.closedhands/artifacts/`\n\nFinal deploy output:\n{}",
+            deploy
+        ))
     }
 
     async fn execute_feedback_command(self: &Arc<Self>, text: String) -> PromptTurnResult {

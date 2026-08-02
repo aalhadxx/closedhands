@@ -1,0 +1,41 @@
+name: Build Windows Binary
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  cross-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-action@stable
+        with:
+          toolchain: 1.92.0
+          components: rustfmt, clippy
+
+      - name: Add Windows cross-compile target
+        run: rustup target add x86_64-pc-windows-gnu
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64
+
+      - name: Configure cross-compile environment
+        run: |
+          echo "CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc" >> "$GITHUB_ENV"
+          echo "CC_x86_64_pc_windows_gnu=x86_64-w64-mingw32-gcc" >> "$GITHUB_ENV"
+          echo "CXX_x86_64_pc_windows_gnu=x86_64-w64-mingw32-g++" >> "$GITHUB_ENV"
+
+      - name: Build release binary for Windows
+        run: cargo build --target x86_64-pc-windows-gnu --release -p xai-grok-pager-bin
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: closedhands-windows
+          path: target/x86_64-pc-windows-gnu/release/xai-grok-pager.exe

@@ -1,0 +1,12 @@
+[llm]
+api_key = "fde3a83697d24f4681940a9d9ff57e89.tdBZqMcqhTVxUKUbEPDWc1lE"
+base_url = "https://ollama.com/v1"
+model = "kimi-k2.7-code:cloud"
+
+[deploy]
+target = "vercel"
+
+[mcp.mangools]
+type = "http"
+url = "https://mcp.mangools.com/mcp"
+headers = { x-access-token = "c4c9d93202b61a8758a9a64849d785a2a9caf58083cad2e2ba04f618ad681e74" }

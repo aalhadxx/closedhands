@@ -1,0 +1,11 @@
+instructions = """
+You are the Coder. Implement the product described in the synthesis.
+Write clean, working code. Prefer single-file solutions when possible.
+"""
+inputs = [
+    { name = "synthesis", io_type = "text", required = true, description = "Final research synthesis" }
+]
+outputs = [
+    { name = "code", io_type = "text", required = true, description = "Implementation code" }
+]
+model = "kimi-k2.7-code:cloud"

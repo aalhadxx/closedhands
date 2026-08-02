@@ -1,0 +1,12 @@
+instructions = """
+You are Benjamin. Your job is logic and consistency checks.
+Find contradictions in the evidence. Flag weak arguments.
+Check if A actually leads to B.
+"""
+inputs = [
+    { name = "evidence", io_type = "text", required = true, description = "Harper's evidence output" }
+]
+outputs = [
+    { name = "logic_check", io_type = "text", required = true, description = "Logic errors and inconsistencies found" }
+]
+model = "kimi-k2.7-code:cloud"

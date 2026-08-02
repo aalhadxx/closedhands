@@ -304,6 +304,16 @@ pub(super) const BUILTIN_COMMANDS: &[BuiltinCommand] = &[
             }
         },
     },
+    BuiltinCommand {
+        name: "closedhands",
+        description: "Run the ClosedHands MOE pipeline: Research -> Code -> Review -> Fix -> Test -> Deploy",
+        argument_hint: Some("<product prompt>"),
+        aliases: &["ch"],
+        gate: BuiltinGate::WorkflowLaunches,
+        resolve: |args| BuiltinAction::ClosedHandsPipeline {
+            prompt: args.trim().to_string(),
+        },
+    },
 ];
 
 /// Split a trailing `--budget <tokens>` flag off a `/goal` objective.
@@ -874,6 +884,9 @@ pub(super) enum BuiltinAction {
         name: String,
         input: String,
     },
+    ClosedHandsPipeline {
+        prompt: String,
+    },
 }
 
 impl BuiltinAction {
@@ -909,6 +922,7 @@ impl BuiltinAction {
             BuiltinAction::DeepResearch { .. } => "deep-research",
             BuiltinAction::WorkflowManage { .. } => "workflow",
             BuiltinAction::WorkflowLaunch { .. } => "workflow",
+            BuiltinAction::ClosedHandsPipeline { .. } => "closedhands",
         }
     }
 
@@ -944,6 +958,7 @@ impl BuiltinAction {
             BuiltinAction::DeepResearch { .. } => true,
             BuiltinAction::WorkflowManage { .. } => true,
             BuiltinAction::WorkflowLaunch { input, .. } => !input.is_empty(),
+            BuiltinAction::ClosedHandsPipeline { prompt } => !prompt.is_empty(),
         }
     }
 }

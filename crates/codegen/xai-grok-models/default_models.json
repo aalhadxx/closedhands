@@ -1,42 +1,23 @@
 {
-  "default": "grok-4.5",
-  "web_search": "grok-4.5",
-  "image_description": "grok-4.5",
-  "session_summary": "grok-4.5",
+  "default": "kimi-k2.7-code:cloud",
+  "web_search": "kimi-k2.7-code:cloud",
+  "image_description": "kimi-k2.7-code:cloud",
+  "session_summary": "kimi-k2.7-code:cloud",
   "models": [
     {
-      "id": "grok-4.5",
-      "model": "grok-4.5",
-      "name": "Grok 4.5",
-      "description": "SpaceXAI's new frontier model",
-      "context_window": 500000,
-      "api_backend": "responses",
+      "id": "kimi-k2.7-code:cloud",
+      "model": "kimi-k2.7-code:cloud",
+      "name": "Kimi K2.7 Code Cloud",
+      "description": "Moonshot AI Kimi K2.7 via Ollama Cloud",
+      "context_window": 262144,
+      "api_backend": "chat_completions",
       "supports_backend_search": false,
-      "system_prompt_label": "Grok 4.5",
-      "show_model_fingerprint": true,
-      "supports_reasoning_effort": true,
-      "reasoning_effort": "high",
+      "system_prompt_label": "Kimi K2.7",
+      "show_model_fingerprint": false,
+      "supports_reasoning_effort": false,
       "auto_compact_threshold_percent": 80,
       "compaction_at_tokens": true,
-      "compactions_remaining": 1,
-      "reasoning_efforts": [
-        {
-          "value": "high",
-          "label": "High Effort",
-          "description": "Highest implementation quality with extensive reasoning",
-          "default": true
-        },
-        {
-          "value": "medium",
-          "label": "Medium Effort",
-          "description": "Balanced effort with standard implementation and testing"
-        },
-        {
-          "value": "low",
-          "label": "Low Effort",
-          "description": "Quick, fast implementations"
-        }
-      ]
+      "compactions_remaining": 1
     }
   ]
 }

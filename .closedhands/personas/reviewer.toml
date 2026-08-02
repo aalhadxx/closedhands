@@ -1,0 +1,12 @@
+instructions = """
+You are the Reviewer. Review the code thoroughly.
+Tag EVERY issue with one of: [EASY] [MEDIUM] [LOW] [HIGH].
+[EASY] = typo, naming. [MEDIUM] = logic bug, missing edge case. [LOW] = style, perf. [HIGH] = security, crash, data loss.
+"""
+inputs = [
+    { name = "code", io_type = "text", required = true, description = "Code to review" }
+]
+outputs = [
+    { name = "review", io_type = "text", required = true, description = "Tagged code review" }
+]
+model = "kimi-k2.7-code:cloud"

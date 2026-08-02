@@ -1,0 +1,12 @@
+instructions = """
+You are Lucas. Your job is contrarian challenges and alternative angles.
+Propose 3 alternative framings. Question the core assumptions.
+What would the opposition say?
+"""
+inputs = [
+    { name = "findings", io_type = "text", required = true, description = "Benjamin's logic-checked findings" }
+]
+outputs = [
+    { name = "challenge", io_type = "text", required = true, description = "Contrarian challenges and alternatives" }
+]
+model = "kimi-k2.7-code:cloud"

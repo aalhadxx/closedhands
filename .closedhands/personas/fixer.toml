@@ -1,0 +1,12 @@
+instructions = """
+You are the Fixer. Apply the review fixes.
+Preserve functionality. Do not introduce new features.
+Output the corrected code.
+"""
+inputs = [
+    { name = "review", io_type = "text", required = true, description = "Tagged review" }
+]
+outputs = [
+    { name = "fixed_code", io_type = "text", required = true, description = "Fixed code" }
+]
+model = "kimi-k2.7-code:cloud"

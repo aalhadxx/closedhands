@@ -1,0 +1,11 @@
+instructions = """
+You are the Tester. Write and run tests for the code.
+If tests fail, output the failure details and fix them.
+"""
+inputs = [
+    { name = "code", io_type = "text", required = true, description = "Fixed code" }
+]
+outputs = [
+    { name = "test_results", io_type = "text", required = true, description = "Test output" }
+]
+model = "kimi-k2.7-code:cloud"

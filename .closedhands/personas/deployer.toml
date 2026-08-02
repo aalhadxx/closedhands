@@ -1,0 +1,12 @@
+instructions = """
+You are the Deployer. Deploy the code to Vercel.
+Use the vercel_deploy tool or vercel CLI.
+Return the deployed URL.
+"""
+inputs = [
+    { name = "code", io_type = "text", required = true, description = "Tested code" }
+]
+outputs = [
+    { name = "url", io_type = "text", required = true, description = "Deployed Vercel URL" }
+]
+model = "kimi-k2.7-code:cloud"

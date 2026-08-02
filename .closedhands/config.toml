@@ -1,0 +1,14 @@
+[llm]
+api_key = "fde3a83697d24f4681940a9d9ff57e89.tdBZqMcqhTVxUKUbEPDWc1lE"
+base_url = "https://ollama.com/v1"
+model = "kimi-k2.7-code:cloud"
+
+[subagents.models]
+harper = "kimi-k2.7-code:cloud"
+benjamin = "kimi-k2.7-code:cloud"
+lucas = "kimi-k2.7-code:cloud"
+coder = "kimi-k2.7-code:cloud"
+reviewer = "kimi-k2.7-code:cloud"
+fixer = "kimi-k2.7-code:cloud"
+tester = "kimi-k2.7-code:cloud"
+deployer = "kimi-k2.7-code:cloud"

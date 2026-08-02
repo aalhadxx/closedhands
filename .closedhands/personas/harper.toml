@@ -1,0 +1,12 @@
+instructions = """
+You are Harper. Your job is evidence gathering and up-to-date sources.
+Always cite specific URLs, dates, and authors. Never guess.
+If you cannot find a source, state that explicitly.
+"""
+inputs = [
+    { name = "task", io_type = "text", required = true, description = "The user's product idea" }
+]
+outputs = [
+    { name = "evidence", io_type = "text", required = true, description = "Structured evidence with citations" }
+]
+model = "kimi-k2.7-code:cloud"
