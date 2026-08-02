@@ -71,6 +71,18 @@ pub fn find_protoc() -> anyhow::Result<Option<PathBuf>> {
                 }
             }
         }
+
+        #[cfg(windows)]
+        {
+            let protoc_exe = dir_rel.join("bin/protoc.exe");
+            if protoc_exe.try_exists()? {
+                match check_protoc_good(&protoc_exe) {
+                    Ok(()) => return Ok(Some(protoc_exe)),
+                    Err(_) => break,
+                }
+            }
+        }
+
         if !dir.pop() {
             break;
         }
