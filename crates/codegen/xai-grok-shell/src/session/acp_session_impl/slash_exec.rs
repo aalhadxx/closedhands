@@ -992,10 +992,22 @@ impl SessionActor {
                     return ok_end_turn(0, None);
                 }
 
-                let backend = self.create_closedhands_backend();
+                let backend = match self.tool_context.subagent_event_tx.clone() {
+                    Some(tx) => xai_grok_tools::implementations::grok_build::task::backend::ChannelBackend::for_session(
+                        tx,
+                        self.session_info.id.to_string(),
+                    ),
+                    None => {
+                        self.send_host_turn_slash_command_output(
+                            "Subagent support not enabled — cannot run debate.",
+                        )
+                        .await;
+                        return ok_end_turn(0, None);
+                    }
+                };
                 let config = super::debate::DebateConfig {
                     brief: brief.clone(),
-                    session_id: self.session_info.id.0.clone(),
+                    session_id: self.session_info.id.to_string(),
                     ..Default::default()
                 };
                 let pipeline = super::debate::DebatePipeline::new(
