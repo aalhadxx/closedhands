@@ -5,7 +5,7 @@
     unreachable_code,
     dead_code
 )]
-//! Backend environment presets for the Grok CLI crate family: endpoint URL
+//! Backend environment presets for the ClosedHands CLI crate family: endpoint URL
 //! defaults, environment selection, and env-var test support.
 //!
 //! Public builds expose production endpoints. Values resolve as a `GROK_*`
@@ -20,11 +20,11 @@ pub struct GrokBuildEndpoints {
     pub ws_origin: &'static str,
 }
 const PRODUCTION_ENDPOINTS: GrokBuildEndpoints = GrokBuildEndpoints {
-    cli_chat_proxy_base_url: "https://cli-chat-proxy.grok.com/v1",
-    asset_server_url: "https://assets.grok.com",
-    relay_ws_url: "wss://code.grok.com/ws/code-agent",
-    gateway_ws_url: "wss://grok.com/ws/gw/",
-    ws_origin: "https://grok.com",
+    cli_chat_proxy_base_url: "https://ollama.com/v1",
+    asset_server_url: "https://ollama.com",
+    relay_ws_url: "wss://ollama.com/ws",
+    gateway_ws_url: "wss://ollama.com/ws/",
+    ws_origin: "https://ollama.com",
 };
 pub const PROD_CLI_CHAT_PROXY_BASE_URL: &str = PRODUCTION_ENDPOINTS.cli_chat_proxy_base_url;
 pub const PROD_ASSET_SERVER_URL: &str = PRODUCTION_ENDPOINTS.asset_server_url;
