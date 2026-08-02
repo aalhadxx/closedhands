@@ -1,4 +1,5 @@
 use super::*;
+use xai_grok_tools::implementations::grok_build::task::backend::SubagentBackend;
 
 impl SessionActor {
     /// Execute a built-in slash command (e.g. `/compact`, `/yolo`).
