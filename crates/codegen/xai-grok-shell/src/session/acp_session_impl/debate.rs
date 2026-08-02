@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use tokio::time::{timeout, Duration};
 
-use crate::implementations::grok_build::task::backend::{ChannelBackend, SubagentBackend};
-use xai_grok_tools::implementations::grok_build::task::backend::SubagentRequest;
+use xai_grok_tools::implementations::grok_build::task::backend::{ChannelBackend, SubagentBackend};
+use xai_grok_tools::implementations::grok_build::task::types::SubagentRequest;
 
 /// Message in the shared debate transcript.
 #[derive(Debug, Clone)]
@@ -16,6 +16,7 @@ pub struct DebateMessage {
 /// Configuration for the debate pipeline.
 pub struct DebateConfig {
     pub brief: String,
+    pub session_id: String,
     pub max_rounds: usize,
     pub round_timeout_secs: u64,
     pub agents: Vec<String>,
@@ -25,6 +26,7 @@ impl Default for DebateConfig {
     fn default() -> Self {
         Self {
             brief: String::new(),
+            session_id: String::new(),
             max_rounds: 6,
             round_timeout_secs: 120,
             agents: vec![
@@ -62,11 +64,26 @@ impl<'a> DebatePipeline<'a> {
             let mut handles: HashMap<String, _> = HashMap::new();
             for agent in &self.config.agents {
                 let prompt = self.build_agent_prompt(agent, &transcript, round);
+                let id = format!("closedhands-debate-{}-{}-{}", agent, round, uuid::Uuid::new_v4());
                 let req = SubagentRequest {
-                    persona: Some(agent.as_str()),
+                    id,
+                    prompt,
+                    description: format!("Debate round {round} for {agent}"),
+                    subagent_type: "general-purpose".to_string(),
+                    parent_session_id: self.config.session_id.clone(),
+                    parent_prompt_id: None,
+                    resume_from: None,
+                    cwd: None,
+                    runtime_overrides: xai_grok_tools::implementations::grok_build::task::types::SubagentRuntimeOverrides {
+                        persona: Some(agent.clone()),
+                        ..Default::default()
+                    },
                     run_in_background: false,
-                    prompt: prompt.into(),
-                    ..Default::default()
+                    surface_completion: true,
+                    await_to_completion: true,
+                    fork_context: false,
+                    owner: xai_grok_tools::implementations::grok_build::task::types::SubagentOwner::Task,
+                    cancel_token: tokio_util::sync::CancellationToken::new(),
                 };
                 handles.insert(agent.clone(), self.backend.spawn(req));
             }
@@ -77,7 +94,8 @@ impl<'a> DebatePipeline<'a> {
                 let deadline = Duration::from_secs(self.config.round_timeout_secs);
                 match timeout(deadline, handle).await {
                     Ok(Ok(result)) => {
-                        let msgs = Self::extract_messages(&result, &agent, round);
+                        let output = result.output.to_string();
+                        let msgs = Self::extract_messages(&output, &agent, round);
                         round_messages.extend(msgs);
                     }
                     Ok(Err(e)) => {
@@ -104,11 +122,26 @@ impl<'a> DebatePipeline<'a> {
 
         // Leader synthesis.
         let leader_prompt = self.build_leader_prompt(&transcript);
+        let leader_id = format!("closedhands-debate-leader-{}", uuid::Uuid::new_v4());
         let leader_req = SubagentRequest {
-            persona: Some("leader"),
+            id: leader_id,
+            prompt: leader_prompt,
+            description: "Leader synthesis for debate".to_string(),
+            subagent_type: "general-purpose".to_string(),
+            parent_session_id: String::new(),
+            parent_prompt_id: None,
+            resume_from: None,
+            cwd: None,
+            runtime_overrides: xai_grok_tools::implementations::grok_build::task::types::SubagentRuntimeOverrides {
+                persona: Some("leader".to_string()),
+                ..Default::default()
+            },
             run_in_background: false,
-            prompt: leader_prompt.into(),
-            ..Default::default()
+            surface_completion: true,
+            await_to_completion: true,
+            fork_context: false,
+            owner: xai_grok_tools::implementations::grok_build::task::types::SubagentOwner::Task,
+            cancel_token: tokio_util::sync::CancellationToken::new(),
         };
 
         let deadline = Duration::from_secs(self.config.round_timeout_secs * 2);
@@ -116,7 +149,7 @@ impl<'a> DebatePipeline<'a> {
             .await
             .map_err(|_| anyhow::anyhow!("leader synthesis timed out"))??;
 
-        Ok(answer)
+        Ok(answer.output.to_string())
     }
 
     /// Build the prompt for a specialist in a given round.

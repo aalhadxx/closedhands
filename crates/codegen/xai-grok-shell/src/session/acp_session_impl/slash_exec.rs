@@ -995,6 +995,7 @@ impl SessionActor {
                 let backend = self.create_closedhands_backend();
                 let config = super::debate::DebateConfig {
                     brief: brief.clone(),
+                    session_id: self.session_info.id.0.clone(),
                     ..Default::default()
                 };
                 let pipeline = super::debate::DebatePipeline::new(
