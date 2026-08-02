@@ -502,8 +502,8 @@ mod tests {
 
     #[test]
     fn ensure_query_param_url_encodes_value() {
-        let out = ensure_query_param("https://grok.com/supergrok", "referrer", "grok build");
-        assert_eq!(out, "https://grok.com/supergrok?referrer=grok+build");
+        let out = ensure_query_param("https://ollama.com", "referrer", "closedhands");
+        assert_eq!(out, "https://ollama.com?referrer=closedhands");
     }
 
     #[test]

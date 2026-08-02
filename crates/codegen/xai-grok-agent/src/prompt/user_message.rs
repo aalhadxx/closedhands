@@ -5,7 +5,7 @@
 //! workspace overview, optional rules / skills / MCP listings).
 //!
 //! `UserMessageTemplate` selects the rendering strategy:
-//! - `Default`: the legacy Grok Build prefix (built by the shell layer).
+//! - `Default`: the legacy ClosedHands prefix (built by the shell layer).
 //! - `Custom`: caller-supplied MiniJinja template string (same delimiters as
 //!   the system prompt templates).
 //!
@@ -63,7 +63,7 @@ pub fn normalize_git_status(status: &str) -> Option<String> {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum UserMessageTemplate {
-    /// Legacy Grok Build prefix (`<user_info>` + optional `<git_status>`), built directly by the
+    /// Legacy ClosedHands prefix (`<user_info>` + optional `<git_status>`), built directly by the
     /// shell layer; the renderer returns `None` and the caller uses its own legacy path.
     #[default]
     Default,

@@ -1310,7 +1310,7 @@ mod tests {
             ("plan", plan),
         ] {
             assert!(
-                !prompt.contains("You are a Grok Build agent"),
+                !prompt.contains("You are a ClosedHands agent"),
                 "{name} prompt should not duplicate base template identity"
             );
         }

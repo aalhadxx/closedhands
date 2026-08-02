@@ -1,6 +1,6 @@
 # Custom Models
 
-Grok connects to custom model endpoints for alternative providers, self-hosted models, and overriding built-in settings. This guide explains how to select models, configure endpoints, and integrate third-party providers.
+ClosedHands connects to custom model endpoints for alternative providers, self-hosted models, and overriding built-in settings. This guide explains how to select models, configure endpoints, and integrate third-party providers.
 
 ---
 
@@ -11,7 +11,7 @@ By default, ClosedHands connects to Ollama Cloud with `kimi-k2.7-code:cloud`. De
 List all available models:
 
 ```bash
-grok models
+closedhands models
 ```
 
 ---
@@ -21,7 +21,7 @@ grok models
 ### CLI Flag
 
 ```bash
-grok -p "Hello" -m grok-build
+closedhands -p "Hello" -m closedhands-build
 ```
 
 ### Slash Command
@@ -29,13 +29,13 @@ grok -p "Hello" -m grok-build
 In the TUI, switch models during a session:
 
 ```
-/model grok-build
+/model closedhands-build
 ```
 
 Or use the alias:
 
 ```
-/m grok-build
+/m closedhands-build
 ```
 
 ### Model Picker (Ctrl+M)
@@ -44,18 +44,18 @@ Press `Ctrl+M` from the scrollback pane to open the model picker. It lists all a
 
 ### Config Default
 
-Set a persistent default in `~/.grok/config.toml`:
+Set a persistent default in `~/.closedhands/config.toml`:
 
 ```toml
 [models]
-default = "grok-4.5"
+default = "closedhands-4.5"
 ```
 
 ---
 
 ## Supported API Backends
 
-Grok supports three API backends. Set `api_backend` in your `[model.*]` config to choose which protocol the model uses:
+ClosedHands supports three API backends. Set `api_backend` in your `[model.*]` config to choose which protocol the model uses:
 
 | Value | API | Default |
 |-------|-----|---------|
@@ -63,15 +63,15 @@ Grok supports three API backends. Set `api_backend` in your `[model.*]` config t
 | `"responses"` | OpenAI Responses (`/v1/responses`) | |
 | `"messages"` | Anthropic Messages (`/v1/messages`) | |
 
-When you omit `api_backend`, Grok uses `chat_completions`.
+When you omit `api_backend`, ClosedHands uses `chat_completions`.
 
-To send provider-specific authentication or version headers -- for example, Anthropic's `x-api-key` -- use the `extra_headers` field described below. Grok sends those headers verbatim with every request to the endpoint.
+To send provider-specific authentication or version headers -- for example, Anthropic's `x-api-key` -- use the `extra_headers` field described below. ClosedHands sends those headers verbatim with every request to the endpoint.
 
 ---
 
 ## Configuring Custom Models
 
-Add custom model endpoints in `~/.grok/config.toml` under `[model.<name>]` sections:
+Add custom model endpoints in `~/.closedhands/config.toml` under `[model.<name>]` sections:
 
 ```toml
 [model.my-model]
@@ -93,16 +93,16 @@ env_http_headers = { "X-Tenant" = "TENANT_TOKEN" }    # Headers from env vars, r
 
 ### Credential Resolution
 
-Grok resolves the API key in this order:
+ClosedHands resolves the API key in this order:
 
 1. The `api_key` field in the model config
 2. The environment variable(s) named by `env_key` — a single string or an array of names. The first set, non-empty value wins (for example `env_key = ["ANTHROPIC_AUTH_TOKEN", "LC_ANTHROPIC_AUTH_TOKEN"]` for SSH `LC_*` forwarding)
-3. Your signed-in session token (from `grok login`), for a model with no `api_key`/`env_key` of its own
-4. The `XAI_API_KEY` environment variable (global fallback; Grok also accepts `GROK_CODE_XAI_API_KEY` for backward compatibility)
+3. Your signed-in session token (from `closedhands login`), for a model with no `api_key`/`env_key` of its own
+4. The `XAI_API_KEY` environment variable (global fallback; ClosedHands also accepts `GROK_CODE_XAI_API_KEY` for backward compatibility)
 
 ### Context Window
 
-The `context_window` value tells Grok when to trigger auto-compaction. When you override a known model, Grok inherits that model's context window. When you define a new model and omit `context_window`, Grok defaults to 200,000 tokens, so set it explicitly to match your provider.
+The `context_window` value tells ClosedHands when to trigger auto-compaction. When you override a known model, ClosedHands inherits that model's context window. When you define a new model and omit `context_window`, ClosedHands defaults to 200,000 tokens, so set it explicitly to match your provider.
 
 ### Global Default Headers
 
@@ -135,7 +135,7 @@ This is a small, fixed set of environment-wide knobs. Settings that identify a s
 
 ### Request Query Parameters
 
-Some gateways route or version on the query string. `query_params` appends percent-encoded query parameters to every request Grok makes for a model. For example, a gateway that selects an API version this way:
+Some gateways route or version on the query string. `query_params` appends percent-encoded query parameters to every request ClosedHands makes for a model. For example, a gateway that selects an API version this way:
 
 ```toml
 [model.my-gateway]
@@ -159,7 +159,7 @@ base_url = "https://gateway.example/v1"
 env_http_headers = { "X-Tenant-Token" = "GATEWAY_TENANT_TOKEN" }
 ```
 
-Grok reads each variable when it builds the client for a session and places the value in the request headers only, never on disk. A header is skipped when its variable is unset or blank, and a resolved value overrides an `extra_headers` entry of the same name. Use `extra_headers` for a static value and `env_http_headers` for one that comes from the environment.
+ClosedHands reads each variable when it builds the client for a session and places the value in the request headers only, never on disk. A header is skipped when its variable is unset or blank, and a resolved value overrides an `extra_headers` entry of the same name. Use `extra_headers` for a static value and `env_http_headers` for one that comes from the environment.
 
 Both fields also work on a shared `[model_providers.<id>]` block. A model that points at a provider with `model_provider = "<id>"` inherits the provider's `query_params` and `env_http_headers` when it sets none of its own, matching how `extra_headers` is inherited.
 
@@ -171,16 +171,16 @@ You can override specific fields of built-in models without redefining everythin
 
 ```toml
 # Override only the API key for a default model
-[model.grok-build]
+[model.closedhands-build]
 api_key = "my-api-key"
 
 # Override temperature and add a custom API key
-[model.grok-build]
+[model.closedhands-build]
 temperature = 0.5
 api_key = "sk-custom"
 ```
 
-When you override a built-in model, Grok starts with the default configuration (including the correct `base_url`), then applies only the fields you specify. Unspecified fields inherit from the default.
+When you override a built-in model, ClosedHands starts with the default configuration (including the correct `base_url`), then applies only the fields you specify. Unspecified fields inherit from the default.
 
 ### Priority Order
 
@@ -206,7 +206,7 @@ context_window = 200000
 extra_headers = { "x-api-key" = "sk-ant-...", "anthropic-version" = "2023-06-01" }
 ```
 
-The `messages` backend uses the Anthropic Messages protocol. Anthropic authenticates with an `x-api-key` header rather than `Authorization: Bearer`, so pass your key through `extra_headers`, which Grok sends verbatim.
+The `messages` backend uses the Anthropic Messages protocol. Anthropic authenticates with an `x-api-key` header rather than `Authorization: Bearer`, so pass your key through `extra_headers`, which ClosedHands sends verbatim.
 
 ### OpenAI (Chat Completions)
 
@@ -272,14 +272,14 @@ temperature = 0.8
 
 ## Custom Models Endpoint
 
-Point Grok at a custom OpenAI-compatible `/v1/models` endpoint instead of the default. Use this when your models sit behind a corporate gateway or a self-hosted inference service.
+Point ClosedHands at a custom OpenAI-compatible `/v1/models` endpoint instead of the default. Use this when your models sit behind a corporate gateway or a self-hosted inference service.
 
 ### Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `GROK_MODELS_BASE_URL` | Yes | Base URL for inference. Grok fetches the model list from `{base_url}/models`. |
-| `XAI_API_KEY` | Yes | API key sent as `Authorization: Bearer`. Grok also accepts `GROK_CODE_XAI_API_KEY`. |
+| `GROK_MODELS_BASE_URL` | Yes | Base URL for inference. ClosedHands fetches the model list from `{base_url}/models`. |
+| `XAI_API_KEY` | Yes | API key sent as `Authorization: Bearer`. ClosedHands also accepts `GROK_CODE_XAI_API_KEY`. |
 | `GROK_MODELS_LIST_URL` | No | Override the model-list URL when it differs from `{base_url}/models`. |
 
 ### Setup
@@ -287,7 +287,7 @@ Point Grok at a custom OpenAI-compatible `/v1/models` endpoint instead of the de
 ```bash
 export GROK_MODELS_BASE_URL="https://api.acme.com/v1"
 export XAI_API_KEY="xai-..."
-grok
+closedhands
 ```
 
 ### Config File Alternative
@@ -297,15 +297,15 @@ grok
 models_base_url = "https://api.acme.com/v1"
 
 # Override only the API key for a specific model
-[model.grok-build]
+[model.closedhands-build]
 api_key = "my-api-key"
 ```
 
-When you use `[endpoints]` with partial model overrides, Grok inherits the `base_url` from the endpoints config, so you do not need to specify it in each `[model.*]` section.
+When you use `[endpoints]` with partial model overrides, ClosedHands inherits the `base_url` from the endpoints config, so you do not need to specify it in each `[model.*]` section.
 
 ### Auth Behavior
 
-When you set `models_base_url`, Grok uses API key auth (`Authorization: Bearer`) instead of session auth. You do not need `grok login` -- the API key is enough.
+When you set `models_base_url`, ClosedHands uses API key auth (`Authorization: Bearer`) instead of session auth. You do not need `closedhands login` -- the API key is enough.
 
 ---
 
@@ -315,16 +315,16 @@ The `web_search` tool uses a separate model. Configure it with:
 
 ```toml
 [models]
-web_search = "grok-4.5"
+web_search = "closedhands-4.5"
 ```
 
 Or via environment variable:
 
 ```bash
-export GROK_WEB_SEARCH_MODEL="grok-4.5"
+export GROK_WEB_SEARCH_MODEL="closedhands-4.5"
 ```
 
-If you point web search at a custom model, you also need a `[model.*]` entry so Grok can reach it. Server-side ("backend") web search runs only when the model sets `supports_backend_search = true` (and the build enables backend search); it does not depend on `api_backend`:
+If you point web search at a custom model, you also need a `[model.*]` entry so ClosedHands can reach it. Server-side ("backend") web search runs only when the model sets `supports_backend_search = true` (and the build enables backend search); it does not depend on `api_backend`:
 
 ```toml
 [models]
@@ -341,13 +341,13 @@ supports_backend_search = true
 
 ```bash
 # List available models (including custom)
-grok models
+closedhands models
 
 # Use in the TUI via slash command
 /model my-model
 
 # Use in headless mode
-grok -p "Hello" -m my-model
+closedhands -p "Hello" -m my-model
 
 # Set as default in config.toml:
 [models]
@@ -370,12 +370,12 @@ auth_provider_label = "Acme Corp"
 auth_token_ttl = 3600
 
 [models]
-default = "company-grok"
+default = "company-closedhands"
 
-[model.company-grok]
-model = "grok-build"
-base_url = "https://grok-proxy.acme.com/"
-name = "Grok Build Latest (Proxy)"
+[model.company-closedhands]
+model = "closedhands-build"
+base_url = "https://closedhands-proxy.acme.com/"
+name = "ClosedHands Latest (Proxy)"
 context_window = 128000
 
 [features]
@@ -390,7 +390,7 @@ telemetry = false
 
 ```bash
 # List available models
-grok models
+closedhands models
 
 # Check config.toml for typos in [model.*] sections
 ```
@@ -407,8 +407,8 @@ curl -s https://api.example.com/v1/models \
 ### Debug Logging
 
 ```bash
-RUST_LOG=debug GROK_LOG_FILE=/tmp/grok.log grok
-tail -f /tmp/grok.log
+RUST_LOG=debug GROK_LOG_FILE=/tmp/closedhands.log closedhands
+tail -f /tmp/closedhands.log
 ```
 
 Look for log entries containing `model` or `sampling` to trace model selection and API calls.

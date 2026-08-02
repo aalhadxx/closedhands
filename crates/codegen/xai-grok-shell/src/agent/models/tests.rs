@@ -1703,8 +1703,8 @@ fn make_entry_config_with_id(
 #[test]
 fn build_prefetched_map_distinct_ids_same_slug() {
     let entries = vec![
-        make_entry_config_with_id(Some("auto"), "grok-build", Some("Auto")),
-        make_entry_config_with_id(Some("grok-build"), "grok-build", Some("Grok Build")),
+        make_entry_config_with_id(Some("auto"), "closedhands", Some("Auto")),
+        make_entry_config_with_id(Some("closedhands"), "closedhands", Some("ClosedHands")),
         make_entry_config_with_id(
             Some("experimental-fast"),
             "experimental-fast",
@@ -1715,13 +1715,13 @@ fn build_prefetched_map_distinct_ids_same_slug() {
 
     assert_eq!(map.len(), 3, "all three entries should survive");
     assert!(map.contains_key("auto"));
-    assert!(map.contains_key("grok-build"));
+    assert!(map.contains_key("closedhands"));
     assert!(map.contains_key("experimental-fast"));
     assert_eq!(
-        map["auto"].info.model, "grok-build",
+        map["auto"].info.model, "closedhands",
         "auto entry should still route to grok-build"
     );
-    assert_eq!(map["grok-build"].info.model, "grok-build");
+    assert_eq!(map["closedhands"].info.model, "closedhands");
 }
 
 #[test]
@@ -1740,13 +1740,13 @@ fn build_prefetched_map_no_id_falls_back_to_slug() {
 #[test]
 fn build_prefetched_map_duplicate_id_overwrites() {
     let entries = vec![
-        make_entry_config_with_id(Some("grok-build"), "grok-build", Some("First")),
-        make_entry_config_with_id(Some("grok-build"), "grok-build", Some("Second")),
+        make_entry_config_with_id(Some("closedhands"), "closedhands", Some("First")),
+        make_entry_config_with_id(Some("closedhands"), "closedhands", Some("Second")),
     ];
     let map = build_prefetched_map(entries, None);
 
     assert_eq!(map.len(), 1, "duplicate id: second overwrites first");
-    assert_eq!(map["grok-build"].info.name.as_deref(), Some("Second"));
+    assert_eq!(map["closedhands"].info.name.as_deref(), Some("Second"));
 }
 
 #[test]
@@ -1754,28 +1754,28 @@ fn resolve_default_model_prefers_id_over_model_slug() {
     let mut catalog: IndexMap<String, ModelEntry> = IndexMap::new();
     catalog.insert(
         "auto-grok-build".to_string(),
-        make_model_entry("grok-build"),
+        make_model_entry("closedhands"),
     );
-    catalog.insert("grok-build".to_string(), make_model_entry("grok-build"));
+    catalog.insert("closedhands".to_string(), make_model_entry("closedhands"));
 
     let mut cfg = config::Config::default();
-    cfg.models.default = Some("grok-build".to_string());
+    cfg.models.default = Some("closedhands".to_string());
 
     let (key, _, _) = resolve_default_model(&cfg, &catalog, true);
-    assert_eq!(key, "grok-build", "must match id, not first slug hit");
+    assert_eq!(key, "closedhands", "must match id, not first slug hit");
 }
 
 #[test]
 fn build_prefetched_map_none_id_falls_back_to_slug() {
     let entries = vec![make_entry_config_with_id(
         None,
-        "grok-build",
-        Some("Grok Build"),
+        "closedhands",
+        Some("ClosedHands"),
     )];
     let map = build_prefetched_map(entries, None);
 
     assert_eq!(map.len(), 1);
-    assert!(map.contains_key("grok-build"));
+    assert!(map.contains_key("closedhands"));
 }
 
 // ── persisted model id → catalog key (session resume) ─────────────
@@ -1834,22 +1834,22 @@ fn selectable_catalog_key_for_persisted_none_when_resolved_not_available() {
 #[test]
 fn selectable_prefers_available_identity_over_non_selectable_exact_key() {
     let mut models = IndexMap::new();
-    models.insert("grok-build".to_string(), make_model_entry("grok-build"));
+    models.insert("closedhands".to_string(), make_model_entry("closedhands"));
     models.insert(
         "enterprise-grok-build".to_string(),
-        make_model_entry("grok-build"),
+        make_model_entry("closedhands"),
     );
     models.insert("grok-4.3".to_string(), make_model_entry("grok-4.3"));
 
     let available = test_available_keys(&["enterprise-grok-build", "grok-4.3"]);
 
-    let persisted = acp::ModelId::new("grok-build");
+    let persisted = acp::ModelId::new("closedhands");
     assert_eq!(
         resolve_catalog_key(&models, &persisted)
             .expect("exact key exists")
             .0
             .as_ref(),
-        "grok-build"
+        "closedhands"
     );
     let key = selectable_catalog_key_for_persisted(&models, &available, &persisted)
         .expect("must resolve to selectable section");
@@ -1861,13 +1861,13 @@ fn selectable_matches_routing_slug_when_no_exact_key() {
     let mut models = IndexMap::new();
     models.insert(
         "enterprise-grok-build".to_string(),
-        make_model_entry("grok-build"),
+        make_model_entry("closedhands"),
     );
     models.insert("grok-4.3".to_string(), make_model_entry("grok-4.3"));
 
     let available = test_available_keys(&["enterprise-grok-build", "grok-4.3"]);
 
-    let persisted = acp::ModelId::new("grok-build");
+    let persisted = acp::ModelId::new("closedhands");
     let key = selectable_catalog_key_for_persisted(&models, &available, &persisted)
         .expect("slug must resolve to selectable key");
     assert_eq!(key.0.as_ref(), "enterprise-grok-build");
@@ -1876,15 +1876,15 @@ fn selectable_matches_routing_slug_when_no_exact_key() {
 #[test]
 fn selectable_prefers_exact_key_over_later_slug_match() {
     let mut models = IndexMap::new();
-    models.insert("grok-build".to_string(), make_model_entry("grok-4.5"));
-    models.insert("other".to_string(), make_model_entry("grok-build"));
+    models.insert("closedhands".to_string(), make_model_entry("grok-4.5"));
+    models.insert("other".to_string(), make_model_entry("closedhands"));
 
-    let available = test_available_keys(&["grok-build", "other"]);
+    let available = test_available_keys(&["closedhands", "other"]);
 
-    let persisted = acp::ModelId::new("grok-build");
+    let persisted = acp::ModelId::new("closedhands");
     let key = selectable_catalog_key_for_persisted(&models, &available, &persisted)
         .expect("exact selectable key must win");
-    assert_eq!(key.0.as_ref(), "grok-build");
+    assert_eq!(key.0.as_ref(), "closedhands");
 }
 
 fn test_available_keys(keys: &[&str]) -> IndexMap<acp::ModelId, acp::ModelInfo> {

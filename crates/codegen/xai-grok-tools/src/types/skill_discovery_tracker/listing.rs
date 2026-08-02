@@ -136,7 +136,7 @@ impl<'a> SkillEntry<'a> {
         }
     }
 
-    // ── Budgeted XML rendering (grok build harness) ─────────────
+    // ── Budgeted XML rendering (closedhands harness) ─────────────
 
     /// Render as an `<agent_skill>` XML row with description and when_to_use
     /// truncated to their budgets. When `when_to_use` is present it follows the
@@ -269,7 +269,7 @@ impl<'a> SkillListing<'a> {
         ))
     }
 
-    // ── Budgeted XML rendering (grok build harness) ─────────────
+    // ── Budgeted XML rendering (closedhands harness) ─────────────
 
     /// Render as XML within `budget` bytes using the three-tier strategy:
     /// 1. Full descriptions (each capped at `MAX_LISTING_COMBINED_BYTES`).
@@ -490,7 +490,7 @@ fn strip_leading_trigger_prefix(wtu: &str) -> &str {
 
 /// XML-escape a string for use in attribute values. Replaces the five XML
 /// metacharacters (`<`, `>`, `&`, `"`, `'`) with their named entities.
-/// Used by the budgeted (grok build) XML rendering path.
+/// Used by the budgeted (closedhands) XML rendering path.
 fn xml_attr_escape(s: &str) -> String {
     s.replace('&', "&amp;")
         .replace('<', "&lt;")
@@ -500,7 +500,7 @@ fn xml_attr_escape(s: &str) -> String {
 }
 
 /// XML-escape body text. Same as attribute escape minus the quote handling.
-/// Used by the budgeted (grok build) XML rendering path.
+/// Used by the budgeted (closedhands) XML rendering path.
 fn xml_text_escape(s: &str) -> String {
     s.replace('&', "&amp;")
         .replace('<', "&lt;")
@@ -552,7 +552,7 @@ pub enum XmlRenderMode {
     /// Verbatim rendering: every skill with its full description; no
     /// budget cap, minimal escaping.
     Verbatim,
-    /// Grok build harness: budget-capped three-tier rendering with full
+    /// ClosedHands harness: budget-capped three-tier rendering with full
     /// XML entity escaping.
     Budgeted {
         /// Character budget for the listing; `None` uses the default.
@@ -1056,7 +1056,7 @@ mod tests {
         );
     }
 
-    // ── budgeted mode: grok build harness (budgeted XML) ───────────
+    // ── budgeted mode: closedhands harness (budgeted XML) ───────────
 
     /// 200 skills must fit within the default budget.
     #[test]

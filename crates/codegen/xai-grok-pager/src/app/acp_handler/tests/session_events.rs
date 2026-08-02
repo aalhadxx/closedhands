@@ -374,7 +374,7 @@
             &RetryState::Failed {
                 error_type: "proxy_error".into(),
                 message:
-                    "API error (status 402 Payment Required): Grok Build usage balance exhausted"
+                    "API error (status 402 Payment Required): ClosedHands usage balance exhausted"
                         .into(),
             },
             &mut session,

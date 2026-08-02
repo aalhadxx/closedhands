@@ -72,7 +72,7 @@ impl SlashCommand for ModelCommand {
 
         // Prefer an exact full-string catalog match first. Model display names
         // often contain spaces ("Grok 4.5"); if we split on the last token
-        // first, a shorter catalog entry ("Grok") would steal the prefix and
+        // first, a shorter catalog entry ("ClosedHands") would steal the prefix and
         // treat "4.5" as an effort level.
         if let Some(id) = ctx.models.resolve_by_name_or_id(trimmed) {
             return CommandResult::Action(Action::SetDefaultModel(id));
@@ -421,10 +421,10 @@ mod tests {
 
     #[test]
     fn run_prefers_full_multi_word_model_name_over_prefix_plus_effort() {
-        // Catalog has both "Grok" (reasoning) and "Grok 4.5". `/model Grok 4.5`
-        // must select the full name, not treat "4.5" as an effort on "Grok".
+        // Catalog has both "ClosedHands" (reasoning) and "Grok 4.5". `/model Grok 4.5`
+        // must select the full name, not treat "4.5" as an effort on "ClosedHands".
         let mut state = ModelState::default();
-        let (short_id, short_info) = model_with_reasoning("grok", "Grok");
+        let (short_id, short_info) = model_with_reasoning("closedhands", "ClosedHands");
         let (long_id, long_info) = model_with_reasoning("grok-4.5", "Grok 4.5");
         state.available.insert(short_id, short_info);
         state.available.insert(long_id.clone(), long_info);

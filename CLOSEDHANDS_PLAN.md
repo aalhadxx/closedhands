@@ -227,7 +227,7 @@ py -3.12 -m pip install openhands-ai  # or local SDK from your fork
 
 ### Phase 4: Human Checkpoints & TUI Polish (Days 15–18)
 
-**Goal:** The IDE feels like Grok Build but with MOE superpowers.
+**Goal:** The IDE feels like a premium native coding assistant but with MOE superpowers.
 
 **New TUI features:**
 1. **Plan Approval Gate**

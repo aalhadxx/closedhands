@@ -1770,22 +1770,22 @@ mod tests {
     fn is_render_subcommand_matches_only_argv1() {
         let argv = |v: &[&str]| v.iter().map(std::ffi::OsString::from).collect::<Vec<_>>();
         assert!(is_render_subcommand(&argv(&[
-            "grok",
+            "closedhands",
             MERMAID_RENDER_SUBCOMMAND
         ])));
         assert!(is_render_subcommand(&argv(&[
-            "grok",
+            "closedhands",
             MERMAID_RENDER_SUBCOMMAND,
             "--out",
             "/tmp/x.png",
         ])));
         // Normal invocations are not the render child.
-        assert!(!is_render_subcommand(&argv(&["grok"])));
-        assert!(!is_render_subcommand(&argv(&["grok", "chat"])));
+        assert!(!is_render_subcommand(&argv(&["closedhands"])));
+        assert!(!is_render_subcommand(&argv(&["closedhands", "chat"])));
         assert!(!is_render_subcommand(&argv(&[])));
         // The subcommand only counts as argv[1], not deeper in the args.
         assert!(!is_render_subcommand(&argv(&[
-            "grok",
+            "closedhands",
             "chat",
             MERMAID_RENDER_SUBCOMMAND,
         ])));

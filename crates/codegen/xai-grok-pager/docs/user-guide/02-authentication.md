@@ -6,10 +6,10 @@ ClosedHands supports several authentication methods, including interactive brows
 
 ## Browser Login (Default)
 
-On first launch, Grok opens your browser to authenticate with grok.com:
+On first launch, ClosedHands opens your browser to authenticate with ollama.com:
 
 ```bash
-grok
+closedhands
 ```
 
 ClosedHands stores credentials in `~/.closedhands/auth.json` and reuses them across sessions. ClosedHands refreshes access tokens automatically in the background. When a token can't be refreshed, ClosedHands prompts you to sign in again. Credentials without a server-provided expiry fall back to a 30-day lifetime.
@@ -47,7 +47,7 @@ For CI/CD, automation, or environments without browser access, use an API key fr
 
 ```bash
 export XAI_API_KEY="xai-..."
-grok
+closedhands
 ```
 
 ClosedHands uses the API key as a fallback when no session token is active. If you have already signed in interactively, the stored session token takes precedence. To fall back to the API key, run `closedhands logout` or delete `~/.closedhands/auth.json`.
@@ -56,7 +56,7 @@ ClosedHands uses the API key as a fallback when no session token is active. If y
 
 ## OIDC (Customer SSO)
 
-Authenticate developers through your own Identity Provider (IdP) -- such as Okta, Azure AD, or Auth0 -- instead of grok.com.
+Authenticate developers through your own Identity Provider (IdP) -- such as Okta, Azure AD, or Auth0 -- instead of ollama.com.
 
 ### 1. Register a public client in your IdP
 
@@ -85,10 +85,10 @@ export GROK_OIDC_CLIENT_ID="0oa1b2c3d4e5f6g7h8i9"
 You can also override the API endpoint to point at your own proxy:
 
 ```bash
-export GROK_CLI_CHAT_PROXY_BASE_URL="https://grok-proxy.acme.com/v1"
+export GROK_CLI_CHAT_PROXY_BASE_URL="https://closedhands-proxy.acme.com/v1"
 ```
 
-### 3. Run `grok`
+### 3. Run `closedhands`
 
 The CLI discovers endpoints via `{issuer}/.well-known/openid-configuration`, opens the IdP login page, and stores tokens in `~/.closedhands/auth.json`. Tokens auto-refresh silently via the stored `refresh_token`.
 
@@ -109,7 +109,7 @@ When browser-based login isn't possible -- for example, on sandboxed VMs, CI run
 
 ```
 +--------------+     sh -c     +------------------------+
-|     Grok     |-------------->|  your auth binary      |
+|     ClosedHands     |-------------->|  your auth binary      |
 |              |               |                        |
 |  reads       |<-- stdout ----|  prints token          |
 |  auth.json   |               |                        |
@@ -120,14 +120,14 @@ When browser-based login isn't possible -- for example, on sandboxed VMs, CI run
 1. ClosedHands runs your command via `sh -c "<command>"`
 2. Your binary runs whatever auth flow it needs (SSO, device code, certificate exchange)
 3. **stderr** carries human-readable output, such as login URLs and status messages. ClosedHands reads stderr and surfaces it to the user; in the TUI, it turns the first `https://` URL into a clickable sign-in link.
-4. **stdout** is captured by Grok and saved as the access token
-5. Exit 0 = success; exit non-zero = Grok falls back to interactive login
+4. **stdout** is captured by ClosedHands and saved as the access token
+5. Exit 0 = success; exit non-zero = ClosedHands falls back to interactive login
 
 ### The stdout / stderr Contract
 
 | Stream | What to print | Who sees it |
 |--------|---------------|-------------|
-| **stdout** | The token -- nothing else | Grok (parsed and stored in auth.json) |
+| **stdout** | The token -- nothing else | ClosedHands (parsed and stored in auth.json) |
 | **stderr** | Login URLs, status messages, errors | The user (ClosedHands reads stderr and shows the sign-in URL as a clickable link in the TUI) |
 
 **Do not print anything to stdout except the token.** No progress messages, no debug output. ClosedHands reads stdout, trims surrounding whitespace, and parses the result as a token.
@@ -146,14 +146,14 @@ eyJhbGciOiJSUzI1NiIs...
 {"access_token": "eyJhbGciOi...", "refresh_token": "ref-tok", "expires_in": 3600, "issuer": "https://idp.example.com"}
 ```
 
-Use JSON if your tokens expire and you want Grok to automatically re-run the binary before expiry.
+Use JSON if your tokens expire and you want ClosedHands to automatically re-run the binary before expiry.
 
 JSON fields:
 
 | Field | Required | Meaning |
 |-------|----------|---------|
-| `access_token` | yes | Bearer token Grok sends to the xAI API |
-| `refresh_token` | no | Stored for reference. Grok refreshes by re-running your binary, not with an OAuth refresh grant |
+| `access_token` | yes | Bearer token ClosedHands sends to the xAI API |
+| `refresh_token` | no | Stored for reference. ClosedHands refreshes by re-running your binary, not with an OAuth refresh grant |
 | `expires_in` | no | Token lifetime in seconds; enables proactive refresh before expiry |
 | `issuer` | no | Identifies the token's issuer |
 
@@ -179,7 +179,7 @@ export GROK_AUTH_TOKEN_TTL=3600
 
 ### Token Refresh
 
-When Grok needs to refresh an expired token, it re-runs your binary with `GROK_AUTH_EXPIRED=1` set in the environment. Each run fully replaces the stored credential, so emit the same JSON fields (such as `issuer`) on every invocation, including refreshes. Your binary can use this to take a faster silent-refresh path:
+When ClosedHands needs to refresh an expired token, it re-runs your binary with `GROK_AUTH_EXPIRED=1` set in the environment. Each run fully replaces the stored credential, so emit the same JSON fields (such as `issuer`) on every invocation, including refreshes. Your binary can use this to take a faster silent-refresh path:
 
 ```bash
 #!/bin/sh
@@ -206,7 +206,7 @@ echo "{\"access_token\": \"$TOKEN\", \"expires_in\": 3600}"
 | `GROK_AUTH_PROVIDER_COMMAND` | Path to your auth binary |
 | `GROK_AUTH_PROVIDER_LABEL` | Display name on the TUI login screen (e.g., "Acme Corp") |
 | `GROK_AUTH_TOKEN_TTL` | Token lifetime in seconds (for bare-string tokens without `expires_in`) |
-| `GROK_AUTH_EXPIRED` | Set to `1` by Grok when re-running the binary for token refresh |
+| `GROK_AUTH_EXPIRED` | Set to `1` by ClosedHands when re-running the binary for token refresh |
 | `GROK_AUTH_EARLY_INVALIDATION_SECS` | Seconds before expiry to proactively refresh (default: 300) |
 
 ---
@@ -219,7 +219,7 @@ For headless environments (SSH sessions, Docker containers, remote VMs) where no
 closedhands login --device-auth    # or: closedhands login --device-code
 ```
 
-This prints a URL and code to the terminal. Open the URL on any device, enter the code, and complete authentication. Grok polls until the login is confirmed.
+This prints a URL and code to the terminal. Open the URL on any device, enter the code, and complete authentication. ClosedHands polls until the login is confirmed.
 
 You can also implement the device-code flow through an [External Auth Provider](#external-auth-provider) for full control.
 
@@ -227,11 +227,11 @@ You can also implement the device-code flow through an [External Auth Provider](
 
 ## Automatic Credential Refresh
 
-Grok automatically refreshes expired credentials:
+ClosedHands automatically refreshes expired credentials:
 
-- **Before expiry:** If your auth provider returned `expires_in` (JSON output) or you set `auth_token_ttl`, Grok re-runs the auth binary ~5 minutes before expiry.
-- **On auth error:** If the server returns 401 Unauthorized, Grok refreshes the credentials and retries the request.
-- **OIDC:** If a `refresh_token` is available, Grok silently refreshes via your IdP without re-opening the browser.
+- **Before expiry:** If your auth provider returned `expires_in` (JSON output) or you set `auth_token_ttl`, ClosedHands re-runs the auth binary ~5 minutes before expiry.
+- **On auth error:** If the server returns 401 Unauthorized, ClosedHands refreshes the credentials and retries the request.
+- **OIDC:** If a `refresh_token` is available, ClosedHands silently refreshes via your IdP without re-opening the browser.
 
 Tune the refresh buffer:
 
@@ -247,19 +247,19 @@ export GROK_AUTH_EARLY_INVALIDATION_SECS=0
 
 ## Hot Reload
 
-Grok picks up changes to `~/.closedhands/auth.json` automatically. If you update credentials externally (for example, with a script that writes new tokens), Grok uses the new credentials on the next API call without a restart.
+ClosedHands picks up changes to `~/.closedhands/auth.json` automatically. If you update credentials externally (for example, with a script that writes new tokens), ClosedHands uses the new credentials on the next API call without a restart.
 
 ---
 
 ## Auth Precedence
 
-Grok resolves credentials for each request in this order, highest to lowest:
+ClosedHands resolves credentials for each request in this order, highest to lowest:
 
 1. **Per-model `api_key` or `env_key`** -- set under `[model.<name>]` in `config.toml`. Wins whenever present.
 2. **Active session token** -- obtained through browser, OIDC/OAuth2, or external-provider login and stored in `~/.closedhands/auth.json`.
 3. **`XAI_API_KEY`** -- fallback when no session token is active.
 
-When more than one login flow is configured, Grok populates the session token from the first available source, highest to lowest:
+When more than one login flow is configured, ClosedHands populates the session token from the first available source, highest to lowest:
 
 1. **External auth provider** (`auth_provider_command`)
 2. **Enterprise OIDC** -- when OIDC is configured, through `[grok_com_config.oidc]` in `config.toml` or the `GROK_OIDC_ISSUER` and `GROK_OIDC_CLIENT_ID` environment variables
@@ -299,8 +299,8 @@ Set `RUST_LOG` to control the verbosity of the file log and headless stderr outp
 In the TUI, set `GROK_LOG_FILE` to an absolute path to write logs to that file:
 
 ```bash
-GROK_LOG_FILE=/tmp/grok.log RUST_LOG=debug grok
-tail -f /tmp/grok.log
+GROK_LOG_FILE=/tmp/closedhands.log RUST_LOG=debug closedhands
+tail -f /tmp/closedhands.log
 ```
 
 `GROK_LOG_FILE` is treated as a literal file path. A relative value such as `1` writes a file named `1` in the current directory.
@@ -308,15 +308,15 @@ tail -f /tmp/grok.log
 In headless mode, logs go to stderr. Redirect them to a file:
 
 ```bash
-RUST_LOG=debug grok -p "hello" 2> /tmp/grok.log
+RUST_LOG=debug closedhands -p "hello" 2> /tmp/closedhands.log
 ```
 
 ### Common log messages
 
 | Log message | What it means |
 |-------------|---------------|
-| `auth: running external auth provider` | Grok is running your binary |
-| `auth: external auth provider returned fresh token` | Grok parsed and stored the token |
+| `auth: running external auth provider` | ClosedHands is running your binary |
+| `auth: external auth provider returned fresh token` | ClosedHands parsed and stored the token |
 | `auth: external auth provider failed` | Binary exited non-zero or stdout was empty |
 | `auth: external auth provider timed out (likely needs interactive auth), killing` | Binary did not exit before the timeout and was killed |
 | `auth: failed to start external auth provider` | Command could not be spawned (binary not found) |

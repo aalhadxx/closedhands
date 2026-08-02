@@ -220,10 +220,10 @@ impl WorktreeDb {
         })
     }
 
-    /// Open the default DB at `~/.grok/worktrees.db`.
+    /// Open the default DB at `~/.closedhands/worktrees.db`.
     ///
     /// Discovers grok home via `$GROK_HOME`, falling back to the canonicalized
-    /// `$HOME/.grok` (matching `xai_grok_config::grok_home`).
+    /// `$HOME/.closedhands` (matching `xai_grok_config::grok_home`).
     /// Path is resolved fresh each call (~1µs env var read) to support
     /// test overrides. Each call opens its own connection — callers in hot
     /// paths should cache the `WorktreeDb` instance.
@@ -386,15 +386,15 @@ pub fn now_epoch_secs() -> i64 {
 }
 
 pub fn resolve_grok_home() -> Result<PathBuf> {
-    if let Ok(v) = std::env::var("GROK_HOME") {
+    if let Ok(v) = std::env::var("CLOSEDHANDS_HOME") {
         return Ok(PathBuf::from(v));
     }
-    let home = PathBuf::from(std::env::var("HOME").context("neither $GROK_HOME nor $HOME is set")?);
-    // Canonicalize the home dir so worktree paths share the same physical .grok
+    let home = PathBuf::from(std::env::var("HOME").context("neither $CLOSEDHANDS_HOME nor $HOME is set")?);
+    // Canonicalize the home dir so worktree paths share the same physical .closedhands
     // tree as trust/hooks even when it is symlinked. The dunce canonicalization
     // must stay in sync with xai_grok_config::default_grok_home();
     // home resolution deliberately differs ($HOME here vs std::env::home_dir()).
-    Ok(dunce::canonicalize(&home).unwrap_or(home).join(".grok"))
+    Ok(dunce::canonicalize(&home).unwrap_or(home).join(".closedhands"))
 }
 
 /// Serializes tests that mutate the process-global `GROK_HOME` env var so they

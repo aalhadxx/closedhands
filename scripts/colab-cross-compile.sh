@@ -1,5 +1,5 @@
 #!/bin/bash
-# Cross-compile ClosedHands (Grok Build fork) for Windows on Google Colab
+# Cross-compile ClosedHands for Windows on Google Colab
 # Paste each cell into Colab. Upload the repo as a zip first.
 
 # === CELL 1: Install Rust & Windows target ===

@@ -4,7 +4,7 @@
 > additive changes may occur without notice, renames/removals will bump the
 > version and be called out in the changelog.
 
-Grok CLI can export usage **metrics** and **events** to your organization's
+ClosedHands CLI can export usage **metrics** and **events** to your organization's
 own OpenTelemetry collector, so platform teams can monitor adoption, token
 consumption, tool-permission decisions, and errors across the fleet — without
 any data flowing through the project.
@@ -48,7 +48,7 @@ export OTEL_LOGS_EXPORTER=otlp
 export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf  # or grpc
 export OTEL_EXPORTER_OTLP_ENDPOINT=https://collector.corp.example:4318
 export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer <collector-token>"
-grok
+closedhands
 ```
 
 `GROK_EXTERNAL_OTEL=1` alone enables **nothing** — you must also select at
@@ -111,7 +111,7 @@ There is deliberately no `headers` key: supply collector auth via
 `OTEL_EXPORTER_OTLP_HEADERS` so tokens are never stored on disk.
 
 Managed deployments can additionally enable org-wide telemetry by distributing
-the `[telemetry]` `otel_*` keys through `grok setup` managed config /
+the `[telemetry]` `otel_*` keys through `closedhands setup` managed config /
 requirements pins, or force-disable it fleet-wide with the same local config
 layers (`external_otel_disabled`, content-gate locks).
 
@@ -119,7 +119,7 @@ layers (`external_otel_disabled`, content-gate locks).
 
 | Attribute | Value |
 |---|---|
-| `service.name` | `grok-cli` |
+| `service.name` | `closedhands-cli` |
 | `service.version`, `client.version` | build/client versions |
 | `app.entrypoint` | `cli` \| `headless` \| `agent` |
 | `terminal.type` | terminal emulator brand |

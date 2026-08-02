@@ -1,6 +1,6 @@
 # Configuration
 
-Grok reads settings from config files, environment variables, and CLI flags. This page covers the common options.
+ClosedHands reads settings from config files, environment variables, and CLI flags. This page covers the common options.
 
 ---
 
@@ -10,7 +10,7 @@ Settings resolve highest-priority first:
 
 1. **CLI flags** (e.g. `--yolo`, `--model`, `--sandbox`)
 2. **Environment variables** (e.g. `XAI_API_KEY`, `GROK_MEMORY`)
-3. **config.toml** (`~/.grok/config.toml`)
+3. **config.toml** (`~/.closedhands/config.toml`)
 4. **Managed / requirements config** (files your org may deploy, e.g. `managed_config.toml` / `requirements.toml`)
 5. **Built-in defaults**
 
@@ -18,7 +18,7 @@ Settings resolve highest-priority first:
 
 ## config.toml (main configuration)
 
-Location: `~/.grok/config.toml`. If the file is missing, Grok uses its built-in defaults, so you only need to set the values you want to override.
+Location: `~/.closedhands/config.toml`. If the file is missing, ClosedHands uses its built-in defaults, so you only need to set the values you want to override.
 
 ### General settings
 
@@ -27,8 +27,8 @@ Location: `~/.grok/config.toml`. If the file is missing, Grok uses its built-in 
 auto_update = true                     # check for updates on launch
 
 [models]
-default = "grok-4.5"                   # model used for new sessions
-web_search = "grok-4.5"                # model used by the web_search tool
+default = "closedhands-4.5"                   # model used for new sessions
+web_search = "closedhands-4.5"                # model used by the web_search tool
 
 # Defaults applied to every model; a per-model [model.<id>] value always wins.
 # See "Custom Models" for the per-model overrides and full details.
@@ -94,7 +94,7 @@ To switch the prompt to vim-style editing:
 simple_mode = false
 ```
 
-You can also flip it from the settings pane (`/settings` → **Disable vim input mode**); Grok writes your choice to `[ui] simple_mode`. `simple_mode` and `vim_mode` are independent — one governs the prompt editor, the other governs scrollback navigation. See [Keyboard Shortcuts](03-keyboard-shortcuts.md) for the full binding reference.
+You can also flip it from the settings pane (`/settings` → **Disable vim input mode**); ClosedHands writes your choice to `[ui] simple_mode`. `simple_mode` and `vim_mode` are independent — one governs the prompt editor, the other governs scrollback navigation. See [Keyboard Shortcuts](03-keyboard-shortcuts.md) for the full binding reference.
 
 #### Default selected permission
 
@@ -127,11 +127,11 @@ You can also override this with `GROK_DEFAULT_SELECTED_PERMISSION`, which is han
 | `false` (default) | Bare-letter and `Shift+letter` keys (`j`/`k`, `h`/`l`, `g`/`G`, `y`/`Y`, `o`/`O`, `r`, `x`, `e`/`E`, `H`/`L`, plus `i`) are suppressed in the scrollback: pressing one focuses the prompt and types the character. Arrows, `Tab`, `Space`, `PageUp`/`PageDown`, and every `Ctrl+letter` shortcut still navigate. `Esc` is **not** a scrollback key — it cancels a running turn, and while idle follows the clear / rewind policy (see [Keyboard Shortcuts](03-keyboard-shortcuts.md#escape)). |
 | `true` | All vim-style scrollback bindings are active, exactly as listed in [Keyboard Shortcuts](03-keyboard-shortcuts.md). Mid-turn `Esc` is swallowed in this mode (`Ctrl+C` cancels); minimal mode keeps Esc-cancel regardless. |
 
-Toggle it at runtime with `/vim-mode`, or from `/settings` → **Vim scrollback navigation**. Grok writes the change to `[ui] vim_mode` immediately and applies it to every future pager session, including new agents and subagents in the same process. There's no per-session override — `config.toml` is the source of truth on next launch. `vim_mode` is independent of `simple_mode`.
+Toggle it at runtime with `/vim-mode`, or from `/settings` → **Vim scrollback navigation**. ClosedHands writes the change to `[ui] vim_mode` immediately and applies it to every future pager session, including new agents and subagents in the same process. There's no per-session override — `config.toml` is the source of truth on next launch. `vim_mode` is independent of `simple_mode`.
 
 #### Screen mode
 
-`[ui] screen_mode` is the **default render mode** for plain `grok` launches. Set it from `/settings` → **Default screen mode** (restart required) or edit `config.toml` by hand — both write the file. CLI flags (`--minimal` / `--fullscreen`) and slash commands (`/minimal` / `/fullscreen`) are session-scoped and do **not** write this key; after a slash switch, the reverse command returns you for that session only.
+`[ui] screen_mode` is the **default render mode** for plain `closedhands` launches. Set it from `/settings` → **Default screen mode** (restart required) or edit `config.toml` by hand — both write the file. CLI flags (`--minimal` / `--fullscreen`) and slash commands (`/minimal` / `/fullscreen`) are session-scoped and do **not** write this key; after a slash switch, the reverse command returns you for that session only.
 
 | Value | Behavior |
 |-------|----------|
@@ -230,7 +230,7 @@ Credential resolution: `api_key` > `env_key` > signed-in session token > `XAI_AP
 To override a built-in model, use its name as the section key and set only the fields you need:
 
 ```toml
-[model.grok-build]
+[model.closedhands-build]
 api_key = "my-api-key"
 ```
 
@@ -257,9 +257,9 @@ url = "https://mcp.example.com/api/mcp"  # HTTP/SSE transport
 headers = { "x-mcp-session-id" = "{{session_id}}" }
 ```
 
-MCP servers can also be set per-project in `.grok/config.toml`. Project-scoped config contributes `[mcp_servers]`, `[plugins]`, and `[permission]` rules; every other section loads only from `~/.grok/config.toml`.
+MCP servers can also be set per-project in `.closedhands/config.toml`. Project-scoped config contributes `[mcp_servers]`, `[plugins]`, and `[permission]` rules; every other section loads only from `~/.closedhands/config.toml`.
 
-Priority for `[mcp_servers]` and `[plugins]`: `.grok/config.toml` (current dir) > `<repo-root>/.grok/config.toml` > `~/.grok/config.toml`. `[permission]` rules aren't overridden by priority — they merge across all files with `deny` > `ask` > `allow` (see [22-permissions-and-safety.md](22-permissions-and-safety.md)).
+Priority for `[mcp_servers]` and `[plugins]`: `.closedhands/config.toml` (current dir) > `<repo-root>/.closedhands/config.toml` > `~/.closedhands/config.toml`. `[permission]` rules aren't overridden by priority — they merge across all files with `deny` > `ask` > `allow` (see [22-permissions-and-safety.md](22-permissions-and-safety.md)).
 
 ### Memory
 
@@ -299,7 +299,7 @@ explore = true                        # enable/disable specific types
 plan = false
 
 [subagents.models]
-explore = "grok-build"               # route to different models
+explore = "closedhands-build"               # route to different models
 ```
 
 To pin the model a subagent uses, set its entry under `[subagents.models]`.
@@ -308,14 +308,14 @@ To pin the model a subagent uses, set its entry under `[subagents.models]`.
 
 `/goal` has two drivers, chosen by the background-workflows setting. With workflows enabled, the host-owned workflow engine evaluates rounds and drives completion verification; with them disabled, `/goal` falls back to the legacy model-facing `update_goal` tool. Whether `/goal` is available at all is a separate switch (the goal feature setting).
 
-Background workflows — the `workflow` tool, named `.grok/workflows/*.rhai` scripts, `/deep-research`, and `/workflow` launches — are **on by default**. Disable with config, env, or remote settings.
+Background workflows — the `workflow` tool, named `.closedhands/workflows/*.rhai` scripts, `/deep-research`, and `/workflow` launches — are **on by default**. Disable with config, env, or remote settings.
 
 ```toml
 [workflows]
 enabled = false                       # disable background workflows (or GROK_WORKFLOWS=0)
 ```
 
-Project workflows are discovered from `<repo-root>/.grok/workflows/`; user workflows from `~/.grok/workflows/`. Discovery and invocation key off the script's `meta.name`, so keep each filename aligned with its `meta.name`. Built-ins win over project names, and project names win over user names, so keep names unique across scopes.
+Project workflows are discovered from `<repo-root>/.closedhands/workflows/`; user workflows from `~/.closedhands/workflows/`. Discovery and invocation key off the script's `meta.name`, so keep each filename aligned with its `meta.name`. Built-ins win over project names, and project names win over user names, so keep names unique across scopes.
 
 Each launch gets a session-unique display handle such as `deep-research-2`. That handle is what you see in the `/workflows` run dashboard and pass to `/workflow pause`, `resume`, or `stop` — the internal run IDs never surface in commands. A numbered handle isn't a reusable definition name, so the dashboard disables **save** until you pick a new unique `meta.name` and save the edited script yourself. See [Slash Commands](04-slash-commands.md) for examples.
 
@@ -359,7 +359,7 @@ For Claude and Cursor, `rules` and `agents` are independent: turning off named i
 
 Each cell can be set via environment variable or `config.toml`; see the environment-variables reference for the names. Resolution: env var > config.toml > default (on).
 
-`grok inspect` reports cells that still need session-start resolution as `?` until a value is available; cells with an explicit env or TOML value use that value. Affected discovery entries report `compatibilityStatus: "unresolved"` in JSON and `[compat unresolved]` in human output.
+`closedhands inspect` reports cells that still need session-start resolution as `?` until a value is available; cells with an explicit env or TOML value use that value. Affected discovery entries report `compatibilityStatus: "unresolved"` in JSON and `[compat unresolved]` in human output.
 
 ### Plugins
 
@@ -371,9 +371,9 @@ disabled = ["user/a1b2c3d4/noisy-plugin"]
 
 ### Hints
 
-`[hints]` holds small persisted UI preferences — mostly "stop asking me" opt-outs. Grok writes these for you when you pick a "don't ask again" option in the TUI, but you can edit or delete them by hand; removing a key restores the default.
+`[hints]` holds small persisted UI preferences — mostly "stop asking me" opt-outs. ClosedHands writes these for you when you pick a "don't ask again" option in the TUI, but you can edit or delete them by hand; removing a key restores the default.
 
-`[hints]` is read from the **effective config merge**, with the usual precedence: system managed → user `managed_config.toml` → user `config.toml` → user `requirements.toml` → system `requirements.toml`, higher layers winning. The TUI only ever **writes** opt-outs to your user `~/.grok/config.toml`.
+`[hints]` is read from the **effective config merge**, with the usual precedence: system managed → user `managed_config.toml` → user `config.toml` → user `requirements.toml` → system `requirements.toml`, higher layers winning. The TUI only ever **writes** opt-outs to your user `~/.closedhands/config.toml`.
 
 ```toml
 [hints]
@@ -385,7 +385,7 @@ fork_worktree_mode = "ask"             # /fork worktree prompt: "ask" | "always"
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `project_picker_disabled` | bool | `false` | When `true`, skips the picker that asks you to choose a project directory on the first prompt when Grok launches from a non-project directory (home, Desktop, Downloads, `/tmp`). Set automatically when you choose **"Don't ask me again"** in that picker. Teams can pin it in `managed_config.toml` or `requirements.toml`. |
+| `project_picker_disabled` | bool | `false` | When `true`, skips the picker that asks you to choose a project directory on the first prompt when ClosedHands launches from a non-project directory (home, Desktop, Downloads, `/tmp`). Set automatically when you choose **"Don't ask me again"** in that picker. Teams can pin it in `managed_config.toml` or `requirements.toml`. |
 | `memory_modal_fullscreen` | bool | `false` | Remembers whether the memory modal was last opened fullscreen. |
 | `new_session_worktree_mode` | string | `"never"` | Worktree prompt for `/new`: `ask` shows the popup, `always` creates a worktree, `never` skips it. |
 | `fork_worktree_mode` | string | `"ask"` | Worktree prompt for `/fork`: `ask`, `always`, or `never`. |
@@ -405,7 +405,7 @@ progress_bar = true       # show tab progress bar (OSC 9;4)
 
 [ui.notifications.title]
 enabled = true
-items = ["action-required", "spinner", "activity", "session-name", "grok"]
+items = ["action-required", "spinner", "activity", "session-name", "closedhands"]
 ```
 
 | Option | Type | Default | Description |
@@ -417,7 +417,7 @@ items = ["action-required", "spinner", "activity", "session-name", "grok"]
 | `sleep_prevention` | bool | `true` | Keep the display awake while the agent works (macOS/Linux). |
 | `progress_bar` | bool | `true` | Show a progress indicator in the terminal tab (OSC 9;4). |
 | `title.enabled` | bool | `true` | Set the terminal title to reflect agent state. |
-| `title.items` | array | (see above) | Items shown in the title bar. Options: `action-required`, `spinner`, `activity`, `session-name`, `cwd`, `model`, `turn-timer`, `grok`. |
+| `title.items` | array | (see above) | Items shown in the title bar. Options: `action-required`, `spinner`, `activity`, `session-name`, `cwd`, `model`, `turn-timer`, `closedhands`. |
 
 #### Terminal support matrix
 
@@ -432,10 +432,10 @@ items = ["action-required", "spinner", "activity", "session-name", "grok"]
 | VS Code | BEL | Yes | No |
 | Apple Terminal | BEL | No | No |
 | VTE (GNOME Terminal) | OSC 777 | Yes | No |
-| Grok Desktop | None (native) | N/A | N/A |
+| ClosedHands Desktop | None (native) | N/A | N/A |
 | Unknown | BEL | No | No |
 
-With `method = "auto"`, Grok detects the terminal brand and picks the best protocol. Set `method` explicitly to override that.
+With `method = "auto"`, ClosedHands detects the terminal brand and picks the best protocol. Set `method` explicitly to override that.
 
 #### Notification hooks
 
@@ -444,14 +444,14 @@ Run your own commands when events fire. Hooks receive `$GROK_EVENT`, `$GROK_MESS
 ```toml
 # macOS native notification
 [[ui.notifications.hooks]]
-command = "terminal-notifier -title 'Grok' -message '$GROK_MESSAGE'"
+command = "terminal-notifier -title 'ClosedHands' -message '$GROK_MESSAGE'"
 events = ["turn_complete", "approval_required"]
 only_unfocused = true
 timeout_secs = 10
 
 # Push to ntfy server
 [[ui.notifications.hooks]]
-command = "curl -s -d '$GROK_MESSAGE' ntfy.sh/my-grok-alerts"
+command = "curl -s -d '$GROK_MESSAGE' ntfy.sh/my-closedhands-alerts"
 events = ["turn_complete"]
 only_unfocused = true
 timeout_secs = 10
@@ -500,7 +500,7 @@ mixpanel_enabled = false                                  # disable Mixpanel pro
 trace_upload = false                                      # disable session/trace uploads (inherits the telemetry toggle when unset)
 ```
 
-Set these only to point telemetry at your own infrastructure or to switch parts off. The built-in endpoint and credentials are managed by Grok — leave them unset to use the defaults.
+Set these only to point telemetry at your own infrastructure or to switch parts off. The built-in endpoint and credentials are managed by ClosedHands — leave them unset to use the defaults.
 
 The same `[telemetry]` table also configures the **external OpenTelemetry stream**, an independent opt-in (it doesn't require the telemetry toggle above) that ships a curated, content-free usage schema to your *own* OTLP collector. Collector auth comes from `OTEL_EXPORTER_OTLP_HEADERS` and is never stored on disk. See [Monitoring & Usage](24-monitoring-usage.md) for the full schema, env vars, and privacy model.
 
@@ -541,13 +541,13 @@ required_maximum_version = "0.2.200" # refuse to start above this
 - `required_minimum_version` (`GROK_REQUIRED_MINIMUM_VERSION`) and
   `required_maximum_version` (`GROK_REQUIRED_MAXIMUM_VERSION`) are hard bounds. If
   the running version is outside the range, the CLI exits at startup and instructs
-  the user to install an approved version. `grok update` and `grok --version` keep
+  the user to install an approved version. `closedhands update` and `closedhands --version` keep
   working so an out-of-range install can recover.
 - Bounds resolve across config layers by tightening only: a floor takes the
   highest value and a ceiling the lowest, so a managed bound can't be loosened,
   and a user or environment bound can't cancel a managed hard bound. An invalid
   value is ignored so a bad policy can't block startup.
-- An explicit `grok update --version X` is allowed above the ceiling, to recover
+- An explicit `closedhands update --version X` is allowed above the ceiling, to recover
   from a too-new install, and rejected below the hard floor.
 
 ### Enterprise deployment
@@ -564,12 +564,12 @@ auth_provider_label = "Acme Corp"
 auth_token_ttl = 3600
 
 [models]
-default = "company-grok"
+default = "company-closedhands"
 
-[model.company-grok]
-model = "grok-build"
-base_url = "https://grok-proxy.acme.com/"
-name = "Grok Build Latest (Proxy)"
+[model.company-closedhands]
+model = "closedhands-build"
+base_url = "https://closedhands-proxy.acme.com/"
+name = "ClosedHands Latest (Proxy)"
 context_window = 128000
 
 [features]
@@ -580,7 +580,7 @@ telemetry = false
 
 ## pager.toml (appearance configuration)
 
-Location: `~/.grok/pager.toml`. This controls the TUI's look and feel. Changes apply on restart.
+Location: `~/.closedhands/pager.toml`. This controls the TUI's look and feel. Changes apply on restart.
 
 ### Terminal
 
@@ -739,7 +739,7 @@ The key ones. See the README for the complete list.
 
 | Variable | Description |
 |----------|-------------|
-| `GROK_HOME` | Override config directory (default: `~/.grok`) |
+| `GROK_HOME` | Override config directory (default: `~/.closedhands`) |
 | `GROK_RESPECT_GITIGNORE` | Force gitignore filtering on (`1`) or off (`0`); overrides `[tools] respect_gitignore` |
 
 ### Telemetry
@@ -759,37 +759,37 @@ The key ones. See the README for the complete list.
 
 | Path | Description |
 |------|-------------|
-| `~/.grok/config.toml` | Main configuration file |
-| `~/.grok/pager.toml` | TUI appearance configuration |
-| `~/.grok/auth.json` | Authentication credentials (auto-managed) |
-| `~/.grok/sessions/` | Persisted sessions (organized by working directory) |
-| `~/.grok/memory/` | Cross-session memory files and index |
-| `~/.grok/skills/` | User-scoped skill definitions |
-| `~/.grok/plugins/` | User-scoped plugins |
-| `~/.grok/agents/` | User-scoped agent definitions |
-| `~/.grok/lsp.json` | LSP server configuration (user-scoped) |
-| `~/.grok/logs/` | Internal log files (e.g. `unified.jsonl`, MCP server logs) |
-| `.grok/config.toml` | Project-scoped MCP servers, plugins, and permission rules |
-| `.grok/skills/` | Project-scoped skill definitions |
-| `.grok/plugins/` | Project-scoped plugins |
-| `.grok/agents/` | Project-scoped agent definitions |
-| `.grok/hooks/` | Project-scoped hooks |
-| `.grok/lsp.json` | LSP server configuration |
+| `~/.closedhands/config.toml` | Main configuration file |
+| `~/.closedhands/pager.toml` | TUI appearance configuration |
+| `~/.closedhands/auth.json` | Authentication credentials (auto-managed) |
+| `~/.closedhands/sessions/` | Persisted sessions (organized by working directory) |
+| `~/.closedhands/memory/` | Cross-session memory files and index |
+| `~/.closedhands/skills/` | User-scoped skill definitions |
+| `~/.closedhands/plugins/` | User-scoped plugins |
+| `~/.closedhands/agents/` | User-scoped agent definitions |
+| `~/.closedhands/lsp.json` | LSP server configuration (user-scoped) |
+| `~/.closedhands/logs/` | Internal log files (e.g. `unified.jsonl`, MCP server logs) |
+| `.closedhands/config.toml` | Project-scoped MCP servers, plugins, and permission rules |
+| `.closedhands/skills/` | Project-scoped skill definitions |
+| `.closedhands/plugins/` | Project-scoped plugins |
+| `.closedhands/agents/` | Project-scoped agent definitions |
+| `.closedhands/hooks/` | Project-scoped hooks |
+| `.closedhands/lsp.json` | LSP server configuration |
 
 ---
 
 ## Project-scoped configuration
 
-Some settings can be set per-project by placing files in `.grok/` inside your repository:
+Some settings can be set per-project by placing files in `.closedhands/` inside your repository:
 
 | File | What it configures |
 |------|--------------------|
-| `.grok/config.toml` | MCP servers, plugins, permission rules, and the `[mcp] max_output_bytes` tool-result cap (other sections load only from `~/.grok/config.toml`) |
-| `.grok/skills/` | Project-specific skills |
-| `.grok/hooks/` | Project-specific lifecycle hooks |
-| `.grok/agents/` | Project-specific agent definitions |
-| `.grok/lsp.json` | LSP server configuration |
-| `.grok/sandbox.toml` | Custom sandbox profiles |
+| `.closedhands/config.toml` | MCP servers, plugins, permission rules, and the `[mcp] max_output_bytes` tool-result cap (other sections load only from `~/.closedhands/config.toml`) |
+| `.closedhands/skills/` | Project-specific skills |
+| `.closedhands/hooks/` | Project-specific lifecycle hooks |
+| `.closedhands/agents/` | Project-specific agent definitions |
+| `.closedhands/lsp.json` | LSP server configuration |
+| `.closedhands/sandbox.toml` | Custom sandbox profiles |
 | `AGENTS.md` | Project instructions (system prompt) |
 
 Project-scoped MCP servers override global ones with the same name (full replacement, not a merge).
@@ -802,14 +802,14 @@ Language servers power passive diagnostics and the optional `lsp` tool (see the 
 
 | Source | Location | Scope |
 |--------|----------|-------|
-| User | `~/.grok/lsp.json` | All projects |
-| Project | `.grok/lsp.json` | Current repository |
+| User | `~/.closedhands/lsp.json` | All projects |
+| Project | `.closedhands/lsp.json` | Current repository |
 | Plugin | A trusted plugin's `.lsp.json` file, or an inline `lspServers` block in its `plugin.json` | Wherever the plugin is enabled |
 
 When the same server name comes from more than one source, it resolves highest-priority first:
 
-1. **Project** — `.grok/lsp.json`
-2. **User** — `~/.grok/lsp.json`
+1. **Project** — `.closedhands/lsp.json`
+2. **User** — `~/.closedhands/lsp.json`
 3. **Plugins** — file-based `.lsp.json`, then inline `lspServers`, in plugin load order
 
 Project and user entries replace lower-priority ones of the same name. Plugin entries only add servers whose names aren't already defined by a local file, so a local `lsp.json` always wins over a plugin. Plugin LSP servers load only after the plugin is trusted (see [Plugins](09-plugins.md)).
