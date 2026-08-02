@@ -1,16 +1,11 @@
 <div align="center">
 
 <h1>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://media.x.ai/v1/website/spacexai-symbol-white-transparent-0c31957f.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://media.x.ai/v1/website/spacexai-symbol-black-transparent-6435cf42.png">
-    <img alt="SpaceXAI logo" src="https://media.x.ai/v1/website/spacexai-symbol-black-transparent-6435cf42.png" width="96">
-  </picture>
   <br>
-  Grok Build (<code>grok</code>)
+  ClosedHands
 </h1>
 
-**Grok Build** is SpaceXAI's terminal-based AI coding agent. It runs as a
+**ClosedHands** is a self-hosted terminal-based AI coding agent. It runs as a
 full-screen TUI that understands your codebase, edits files, executes shell
 commands, searches the web, and manages long-running tasks — interactively,
 headlessly for scripting/CI, or embedded in editors via the Agent Client
@@ -24,12 +19,10 @@ Protocol (ACP).
 [Contributing](#contributing) ·
 [License](#license)
 
-![Grok Build TUI](https://media.x.ai/v1/website/universe-tui-screenshot-6f7a0837.png)
+![ClosedHands TUI](https://via.placeholder.com/800x400?text=ClosedHands+TUI)
 
-**Learn more about Grok Build at [x.ai/cli](https://x.ai/cli)**
-
-This repository contains the Rust source for the `grok` CLI/TUI and its agent
-runtime. It is synced periodically from the SpaceXAI monorepo.
+This repository contains the Rust source for the ClosedHands CLI/TUI and its agent
+runtime.
 
 A small `SOURCE_REV` file at the root records the full monorepo commit SHA
 for the version of the code present in this tree.
@@ -43,12 +36,11 @@ for the version of the code present in this tree.
 Prebuilt binaries are published for macOS, Linux, and Windows:
 
 ```sh
-curl -fsSL https://x.ai/cli/install.sh | bash   # macOS / Linux / Git Bash
-irm https://x.ai/cli/install.ps1 | iex          # Windows PowerShell
-grok --version
+# Build from source or download a prebuilt binary from Releases
+closedhands --version
 ```
 
-See the [changelog](https://x.ai/build/changelog) for the latest fixes,
+See the Releases page for the latest fixes,
 features, and improvements in each release.
 
 ## Building from source
@@ -85,7 +77,7 @@ The binary artifact is named `xai-grok-pager`; official installs ship it as
 ## Documentation
 
 Full online documentation is available at
-[docs.x.ai/build/overview](https://docs.x.ai/build/overview).
+the documentation in this repository.
 
 The user guide ships with the pager crate:
 [`crates/codegen/xai-grok-pager/docs/user-guide/`](crates/codegen/xai-grok-pager/docs/user-guide/)

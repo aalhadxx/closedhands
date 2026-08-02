@@ -560,7 +560,7 @@ async fn run_headless_inner(
         anyhow::bail!("{HEADLESS_NO_SESSION}");
     };
 
-    // Capture the grok build URL for the first-connection callback
+    // Capture the ClosedHands URL for the first-connection callback
     let grok_code_url = format!("{}/build", ctx.grok_ws_origin);
 
     // Create first-connection callback for headless-specific behavior
@@ -569,7 +569,7 @@ async fn run_headless_inner(
             // Print to stderr (not logger) so user sees it
             eprintln!();
             eprintln!(
-                "Open Grok Build: {} (press Enter to open in browser)",
+                "Open ClosedHands: {} (press Enter to open in browser)",
                 grok_code_url
             );
             eprintln!();

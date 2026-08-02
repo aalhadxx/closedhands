@@ -1,6 +1,6 @@
 # Grok Build User Guide
 
-Learn how to install, configure, and extend Grok Build, the terminal-based AI coding assistant from SpaceXAI.
+Learn how to install, configure, and extend ClosedHands, the terminal-based AI coding assistant.
 
 ---
 
