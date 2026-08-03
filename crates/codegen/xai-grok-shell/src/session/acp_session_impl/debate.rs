@@ -27,7 +27,7 @@ impl Default for DebateConfig {
         Self {
             brief: String::new(),
             session_id: String::new(),
-            max_rounds: 6,
+            max_rounds: 4,
             round_timeout_secs: 120,
             agents: vec![
                 "harper".to_string(),
@@ -128,7 +128,7 @@ impl<'a> DebatePipeline<'a> {
             prompt: leader_prompt,
             description: "Leader synthesis for debate".to_string(),
             subagent_type: "general-purpose".to_string(),
-            parent_session_id: String::new(),
+            parent_session_id: self.config.session_id.clone(),
             parent_prompt_id: None,
             resume_from: None,
             cwd: None,
@@ -205,7 +205,7 @@ After your message(s), include a `### Analysis` section with your private reason
         format!(
             r#"# Leader Synthesis
 
-You are Grok, the team leader. Synthesize the following multi-agent debate into a single, coherent, high-quality final answer.
+You are the ClosedHands leader. Synthesize the following multi-agent debate into a single, coherent, high-quality final answer.
 
 ## Brief
 {brief}
